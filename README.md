@@ -1,0 +1,1 @@
+This is PURELY used for simulating an Oracle database.  This is intended solely to test schema, not for integration tests

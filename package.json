@@ -1,0 +1,25 @@
+{
+  "name": "grcdb",
+  "version": "1.0.0",
+  "description": "oracledb tess",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phillyfan1138/grcDB.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/phillyfan1138/grcDB/issues"
+  },
+  "homepage": "https://github.com/phillyfan1138/grcDB#readme",
+  "dependencies": {
+    "sqlite3": "^3.1.8"
+  },
+  "devDependencies": {
+    "jest": "^19.0.2"
+  }
+}
