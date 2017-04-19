@@ -1,0 +1,6 @@
+Purpose: A random .txt file to jot down ideas 'bout the database design, overall policy framework, and other possible suggestions to the group.
+
+04/19/2017: I am creating a big long table for all the data and pulling fields from SharePoint, but perhaps creating a new index.js file
+with a whole new database design that can inform the policy instead of react to it might be better.
+
+

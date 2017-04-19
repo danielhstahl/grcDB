@@ -37,13 +37,17 @@ const CreateLongForm=`CREATE TABLE LongForm (
     SecondaryUse varchar(50) null,
     SecondaryMethodology varchar(5) null,
     TertiaryUse varchar(50) null,
-    TertiaryMethodology varchar(50) null);`
+    TertiaryMethodology varchar(50) null,
+    FilePath varchar(100) not null,
+
+    );`
 
 
 //db.all(`SELECT id, skill from AssociateSkills;`, cb)
 //db.run(`INSERT INTO GroupKey (AdGroup, Key, dateCreated) VALUES (?, ?, datetime('now'))`, [group, key], cb);
 //db.exec(query, cb)
 
+//this is a comment to adjust my code for an example...
 
 
 db.serialize(()=>{
