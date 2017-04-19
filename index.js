@@ -8,6 +8,12 @@ const CreateCatalog=`CREATE TABLE Catalog (
     CatalogID varchar(10) not null primary key
 );`;
 
+/*I want to try to create a massive table that I know will look bad,
+  but with the bare minimum of stuff needed from the SharePoint site
+  that can support our model validation and reporting needs. My idea
+  is to have an ugly, huge table... then slice, dice, and reduce the 
+  table into many smaller, normalized tables. */
+
 const CreateLongForm=`CREATE TABLE LongForm (
     ActivityID varchar(10) not null primary key,
     ActivityName char(100) not null,
@@ -17,9 +23,21 @@ const CreateLongForm=`CREATE TABLE LongForm (
     MRMVVersion varchar(20) not null, 
     ModelClass char(10) not null,
     ERABusinessGroup varchar(20) not null,
+    BusinessUnit varchar(50) not null,
+    SubBusinessUnit varchar(50) not null,
+    BGICR varchar(50) not null,
+    Owner varchar(50) not null,
+    CoOwner varchar(50) null,
+    SOX char(1) not null,
+    CCAR char(1) not null,
+    PrimaryUse varchar(50) not null,
+    PrimaryMethodology varchar(50) not null,
+    SecondaryUse varchar(50) null,
+    SecondaryMethodology varchar(5) null,
+    TertiaryUse varchar(50) null,
+    TertiaryMethodology varchar(50) null,
+    
 
-
-    STOPPED HERE.
     `
 
 
