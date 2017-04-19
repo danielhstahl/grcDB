@@ -18,6 +18,7 @@ const CreateLongForm=`CREATE TABLE LongForm (
     ActivityID varchar(10) not null primary key,
     ActivityName char(100) not null,
     ActivityType char(50) not null,
+    ActivityRating char(10) not null,
     MVLead char(50) not null,
     ActivityDate datetime not null,
     MRMVVersion varchar(20) not null, 
@@ -28,6 +29,7 @@ const CreateLongForm=`CREATE TABLE LongForm (
     BGICR varchar(50) not null,
     Owner varchar(50) not null,
     CoOwner varchar(50) null,
+    Processor varchar(50) not null,
     SOX char(1) not null,
     CCAR char(1) not null,
     PrimaryUse varchar(50) not null,
@@ -35,10 +37,7 @@ const CreateLongForm=`CREATE TABLE LongForm (
     SecondaryUse varchar(50) null,
     SecondaryMethodology varchar(5) null,
     TertiaryUse varchar(50) null,
-    TertiaryMethodology varchar(50) null,
-    
-
-    `
+    TertiaryMethodology varchar(50) null);`
 
 
 //db.all(`SELECT id, skill from AssociateSkills;`, cb)
