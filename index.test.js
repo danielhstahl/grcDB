@@ -21,6 +21,9 @@ beforeEach(()=>{
     db.exec(`INSERT INTO IssueSeverityLookup (IssueSeverity) VALUES ('Moderate');`)
     db.exec(`INSERT INTO IssueSeverityLookup (IssueSeverity) VALUES ('Low');`)
     db.exec(`INSERT INTO IssueSeverityLookup (IssueSeverity) VALUES ('Extreme');`)
+    db.exec(`INSERT INTO ISsueEventsLookup (event) VALUES ('Issue Opened');`)
+    db.exec(`INSERT INTO ISsueEventsLookup (event) VALUES ('Remediation Submitted');`)
+    db.exec(`INSERT INTO ISsueEventsLookup (event) VALUES ('Issue Closed');`)
 
     //})
     
@@ -33,6 +36,7 @@ afterEach(()=>{
     db.exec("DELETE FROM CatalogRatingLookup;")
     db.exec("DELETE FROM ActivityLookup;")
     db.exec("DELETE FROM IssueSeverityLookup;")
+    db.exec("DELETE FROM ISsueEventsLookup;")
 })
 
 it("Fails insert because of CatalogName->Catalog PK", (done)=>{

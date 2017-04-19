@@ -46,7 +46,7 @@ CREATE TABLE CatalogDependencies (
     DownstreamCatalogId varchar(10) not null,
     CONSTRAINT pkCatalogDependencies PRIMARY KEY(UpstreamCatalogId, DownstreamCatalogId),
     CONSTRAINT fkUpstream FOREIGN KEY(UpstreamCatalogId) REFERENCES Catalog(CatalogID),
-    CONSTRAINT fkDownstream FOREIGN KEY(DownstreamCatalogId) REFERENCES Catalog(CatalogID),
+    CONSTRAINT fkDownstream FOREIGN KEY(DownstreamCatalogId) REFERENCES Catalog(CatalogID)
 );`;
 
 const CreateCatalogName=`CREATE TABLE CatalogName (
@@ -186,8 +186,36 @@ CREATE TABLE IssueSeverity(
     CONSTRAINT pkIssueSeverity PRIMARY KEY(IssueID, IssueSeverity, DateModified),
     CONSTRAINT fkIssueSeverityToIssueID FOREIGN KEY(IssueID) REFERENCES Issues(IssueID),
     CONSTRAINT fkISsueSeverirtyToLookup FOREIGN KEY(IssueSeverity) REFERENCES IssueSeverityLookup(IssueSeverity)
-)
+);
 `
+
+/**Issue Events include "issue date", "remediation submitted", "closed date" */
+const CreateIssueEventsLookup=`
+CREATE TABLE IssueEventsLookup (
+    Event varchar(20) not null primary key
+);`
+
+
+
+const CreateIssueEvents=`
+CREATE TABLE IssueEvents(
+    IssueID Integer not null,
+    Event varchar(20) not null,
+    DateModified datetime not null,
+    CONSTRAINT pkIssueEvent PRIMARY KEY(IssueID, Event, DateModified),
+    CONSTRAINT fkEventToIssue FOREIGN KEY(IssueID) REFERENCES Issues(ISsueID),
+    CONSTRAINT fkEventLookup FOREIGN KEY(Event) REFERENCES IssueEventsLookup(Event)
+);`
+
+/**When issues are due */
+const CreateIssueDueDates=`
+CREATE TABLE IssueDueDates (
+    IssueID integer not null,
+    DueDate date not null,
+    DateModified datetime not null,
+    CONSTRAINT pkIssueDueDate PRIMARY KEY(IssueID, DueDate, DateModified),
+    CONSTRAINT fkIssueDueToIssues FOREIGN KEY(IssueID) REFERENCES ISsues(IssueID)
+)`
 
 /**Issue mapping table (for recasts) */
 const CreateIssueMapping=`
@@ -197,7 +225,7 @@ CREATE TABLE IssueMapping(
     Constraint pkIssueMapping PRIMARY KEY(PriorIssueID, RecastIssueID),
     Constraint fkPriorIssue FOREIGN KEY(PriorIssueID) REFERENCES Issues(ISsueID),
     Constraint fkRecastIssue FOREIGN KEY(RecastIssueID) REFERENCES Issues(ISsueID)
-)
+);
 `
 
 db.serialize(()=>{
@@ -215,6 +243,7 @@ db.serialize(()=>{
     db.exec(CreateCatalogRating)
     db.exec(CreateActivitiesLookup)
     db.exec(CreateActivityID)
+    db.exec(CreateIssueDueDates)
     CreateActivityQueries.map((val)=>{
         db.exec(val.lookup)
         db.exec(val.mainQuery)
@@ -223,6 +252,8 @@ db.serialize(()=>{
     db.exec(CreateIssueSeverityLookupTable)
     db.exec(CreateIssuesTable)
     db.exec(CreateIssueSeverity)
+    db.exec(CreateIssueEventsLookup)
+    db.exec(CreateIssueEvents)
     db.exec(CreateIssueMapping)
 });
 
