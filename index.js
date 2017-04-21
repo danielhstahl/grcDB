@@ -27,6 +27,62 @@ CREATE TABLE CatalogEvents (
     Constraint fkCatalogEventsToCatalogLookup FOREIGN KEY(CatalogEvent) REFERENCES CatalogEventLookup(CatalogEvent)
 );
 `
+
+/**hiccups include "not ready for validation" */
+const CreateCatalogHiccupsLookup=`
+CREATE TABLE HiccupsLookup (
+    Hiccup varchar(50) not null Primary Key
+)`
+
+/**Waiver type includes the type of waiver...but 
+ * I think it should be done by hiccup so this table is going away */
+/*const CreateCatalogWaiverLookup=`
+CREATE TABLE CatalogWaiverLookup(
+    WaiverType varchar(20) not null primary key
+)`*/
+const CreateCatalogWaiver=`
+CREATE TAble CatalogWaiver(
+    WaiverID varchar(10) not null,
+    CatalogId varchar(10) not null, 
+    Hiccup varchar(50) not null,
+    DateModified datetime not null, 
+    Constraint pkCatalogWaiver PRIMARY KEY(WaiverID),
+    Constraint fkWaiverToCatalog FOREIGN KEY(CatalogID) REFERENCES Catalog(CatalogID),
+    Constraint fkHiccupstoLookup FOREIGN KEY(Hiccup) REFERENCES CatalogHiccupsLookup(Hiccup)
+)
+`
+const CreateCatalogWaiverDueDates=`
+CREATE TABLE CatalogWaiverDue(
+    WaiverID varchar(10) not null, 
+    DueDate date not null,
+    DateModified datetime not null,
+    CONSTRAINT pkWaiverDue PRIMARY KEY(WaiverID, DueDate),
+    CONSTRAINT fkWaiverDueToWaiver FOREIGN KEY(WaiverID) REFERENCES CatalogWaiver(WaiverID)
+);
+`
+
+const CreateCatalogOngoingMonitoringResults=`
+CREATE TABLE OngoingMonitoringResults (
+    CatalogID varchar(10) not null,
+    OGMDate date not null,
+    DateModified datetime not null,
+    Expected Decimal(10, 2) not null,
+    Actual Decimal(10, 2) not null,
+    CONSTRAINT pkcID PRIMARY KEY (CatalogId, OGMDate, DateModified),
+    CONSTRAINT fkOGM FOREIGN KEY(CatalogId) REFERENCES Catalog(CatalogID)
+)
+`
+const CreateCatalogOngoingMonitoringProgram=`
+CREATE TABLE OngoingMonitoringProgram (
+    CatalogID varchar(10) not null,
+    DateModified datetime not null,
+    Threshold Decimal(10, 2) not null,
+    CONSTRAINT pkOGMP PRIMARY KEY (CatalogId,  DateModified),
+    CONSTRAINT fkOGMCatalog FOREIGN KEY(CatalogId) REFERENCES Catalog(CatalogID)
+)
+`
+
+
 /**the "owner" field will be verified against AD.  
  * All other fields (eg, business group, etc) will be populated by AD  */
 const CreateCatalogOwner=`
@@ -47,7 +103,7 @@ CREATE TABLE CatalogDependencies (
     CONSTRAINT pkCatalogDependencies PRIMARY KEY(UpstreamCatalogId, DownstreamCatalogId),
     CONSTRAINT fkUpstream FOREIGN KEY(UpstreamCatalogId) REFERENCES Catalog(CatalogID),
     CONSTRAINT fkDownstream FOREIGN KEY(DownstreamCatalogId) REFERENCES Catalog(CatalogID)
-);`;
+);`
 
 const CreateCatalogName=`CREATE TABLE CatalogName (
      CatalogID varchar(10) not null,
@@ -55,7 +111,7 @@ const CreateCatalogName=`CREATE TABLE CatalogName (
      DateModified datetime not null, 
      Constraint pkCatalogName PRIMARY KEY(CatalogID, Name), 
      Constraint fkCatalogNameToCatalog FOREIGN KEY(CatalogID) REFERENCES Catalog(CatalogID)
-);`;
+);`
 
 const CreateCatalogDeterminationLookup=`CREATE TABLE CatalogDeterminationLookup (
     DeterminationType varchar(30) not null primary key
@@ -133,7 +189,7 @@ const ActivityTypes=[
 
 
 /**What is an action? 
- * I think an action is like "start", "draft published"
+ * I think an action is like "start", "draft published", "validation readiness assessment"
  * ...should it include QC checkpoints?
  * should it include items required for a validation like "scoping", "skills assessment"?*/
 
@@ -233,6 +289,9 @@ db.serialize(()=>{
     db.exec(CreateCatalogName)
     db.exec(CreateCatalogEventLookup)
     db.exec(CreateCatalogEvent)
+    db.exec(CreateCatalogHiccupsLookup)
+    db.exec(CreateCatalogWaiver)
+    db.exec(CreateCatalogWaiverDueDates)
     db.exec(CreateCatalogPrecidence)
     db.exec(CreateCatalogOwner)
     db.exec(CreateCatalogUses)
@@ -244,6 +303,7 @@ db.serialize(()=>{
     db.exec(CreateActivitiesLookup)
     db.exec(CreateActivityID)
     db.exec(CreateIssueDueDates)
+    
     CreateActivityQueries.map((val)=>{
         db.exec(val.lookup)
         db.exec(val.mainQuery)

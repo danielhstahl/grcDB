@@ -24,7 +24,7 @@ beforeEach(()=>{
     db.exec(`INSERT INTO ISsueEventsLookup (event) VALUES ('Issue Opened');`)
     db.exec(`INSERT INTO ISsueEventsLookup (event) VALUES ('Remediation Submitted');`)
     db.exec(`INSERT INTO ISsueEventsLookup (event) VALUES ('Issue Closed');`)
-
+    db.exec(`INSERT INTO HiccupsLookup (Hiccup) VALUES ('Not Ready for Validation')`)
     //})
     
 })
