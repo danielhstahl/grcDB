@@ -12,7 +12,8 @@ const CreateCatalog=`CREATE TABLE Catalog (
   but with the bare minimum of stuff needed from the SharePoint site
   that can support our model validation and reporting needs. My idea
   is to have an ugly, huge table... then slice, dice, and reduce the 
-  table into many smaller, normalized tables. */
+  table into many smaller, normalized tables once we know what we 
+  need. */
 
 const CreateLongForm=`CREATE TABLE LongForm (
     ActivityID varchar(10) not null primary key,
