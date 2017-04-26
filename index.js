@@ -32,7 +32,7 @@ CREATE TABLE CatalogEvents (
 const CreateCatalogHiccupsLookup=`
 CREATE TABLE HiccupsLookup (
     Hiccup varchar(50) not null Primary Key
-)`
+);`
 
 /**Waiver type includes the type of waiver...but 
  * I think it should be done by hiccup so this table is going away */
@@ -49,7 +49,7 @@ CREATE TAble CatalogWaiver(
     Constraint pkCatalogWaiver PRIMARY KEY(WaiverID),
     Constraint fkWaiverToCatalog FOREIGN KEY(CatalogID) REFERENCES Catalog(CatalogID),
     Constraint fkHiccupstoLookup FOREIGN KEY(Hiccup) REFERENCES CatalogHiccupsLookup(Hiccup)
-)
+);
 `
 const CreateCatalogWaiverDueDates=`
 CREATE TABLE CatalogWaiverDue(
