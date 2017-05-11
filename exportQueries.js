@@ -1,24 +1,19 @@
-'use strict';
-const sqlite3 = require('sqlite3').verbose();
-let db = new sqlite3.Database(':memory:');
-db.exec("PRAGMA foreign_keys = ON;")
-
 /*This will include all items (models, tools, etc) including procedures*/
 const CreateCatalog=`CREATE TABLE Catalog (
-    CatalogID varchar(10) not null primary key
+    CatalogID integer not null primary key
 );`;
 
 /**catalog events include development date, implementation date, retirement date.  
  * "status" will be configured by these dates.  eg, "active" will be where implementation date exists but retirement doesn't
   */
-const CreateCatalogEventLookup=`
+ const CreateCatalogEventLookup=`
 CREATE TABLE CatalogEventLookup (
     CatalogEvent varchar(30) not null primary key    
 );`
 /** */
-const CreateCatalogEvent=`
+ const CreateCatalogEvent=`
 CREATE TABLE CatalogEvents (
-    CatalogID varchar(10) not null,
+    CatalogID integer not null,
     DateOfEvent date not null,
     DateModified datetime not null,
     CatalogEvent varchar(30) not null,
@@ -29,7 +24,7 @@ CREATE TABLE CatalogEvents (
 `
 
 /**hiccups include "not ready for validation" */
-const CreateCatalogHiccupsLookup=`
+ const CreateCatalogHiccupsLookup=`
 CREATE TABLE HiccupsLookup (
     Hiccup varchar(50) not null Primary Key
 );`
@@ -40,10 +35,10 @@ CREATE TABLE HiccupsLookup (
 CREATE TABLE CatalogWaiverLookup(
     WaiverType varchar(20) not null primary key
 )`*/
-const CreateCatalogWaiver=`
+ const CreateCatalogWaiver=`
 CREATE TAble CatalogWaiver(
-    WaiverID varchar(10) not null,
-    CatalogId varchar(10) not null, 
+    WaiverID integer not null,
+    CatalogId integer not null, 
     Hiccup varchar(50) not null,
     DateModified datetime not null, 
     Constraint pkCatalogWaiver PRIMARY KEY(WaiverID),
@@ -51,9 +46,9 @@ CREATE TAble CatalogWaiver(
     Constraint fkHiccupstoLookup FOREIGN KEY(Hiccup) REFERENCES CatalogHiccupsLookup(Hiccup)
 );
 `
-const CreateCatalogWaiverDueDates=`
+ const CreateCatalogWaiverDueDates=`
 CREATE TABLE CatalogWaiverDue(
-    WaiverID varchar(10) not null, 
+    WaiverID integer not null, 
     DueDate date not null,
     DateModified datetime not null,
     CONSTRAINT pkWaiverDue PRIMARY KEY(WaiverID, DueDate),
@@ -61,9 +56,9 @@ CREATE TABLE CatalogWaiverDue(
 );
 `
 
-const CreateCatalogOngoingMonitoringResults=`
+ const CreateCatalogOngoingMonitoringResults=`
 CREATE TABLE OngoingMonitoringResults (
-    CatalogID varchar(10) not null,
+    CatalogID integer not null,
     OGMDate date not null,
     DateModified datetime not null,
     Expected Decimal(10, 2) not null,
@@ -72,9 +67,9 @@ CREATE TABLE OngoingMonitoringResults (
     CONSTRAINT fkOGM FOREIGN KEY(CatalogId) REFERENCES Catalog(CatalogID)
 )
 `
-const CreateCatalogOngoingMonitoringProgram=`
+ const CreateCatalogOngoingMonitoringProgram=`
 CREATE TABLE OngoingMonitoringProgram (
-    CatalogID varchar(10) not null,
+    CatalogID integer not null,
     DateModified datetime not null,
     Threshold Decimal(10, 2) not null,
     CONSTRAINT pkOGMP PRIMARY KEY (CatalogId,  DateModified),
@@ -85,37 +80,37 @@ CREATE TABLE OngoingMonitoringProgram (
 
 /**the "owner" field will be verified against AD.  
  * All other fields (eg, business group, etc) will be populated by AD  */
-const CreateCatalogOwner=`
+ const CreateCatalogOwner=`
 CREATE TABLE CatalogOwner (
-    CatalogId varchar(10) not null,
+    CatalogId integer not null,
     DateModified datetime not null,
-    Owner varchar(10) not null,
+    Owner integer not null,
     Constraint pkCatalogOwner PRIMARY KEY(CatalogID, DateModified, Owner),
     Constraint fkCatalogOwnerToCatalog FOREIGN KEY(CatalogID) REFERENCES Catalog(CatalogID)
 )
 `
 
 /**track upstream and downstream models */
-const CreateCatalogPrecidence=`
+ const CreateCatalogPrecedence=`
 CREATE TABLE CatalogDependencies (
-    UpstreamCatalogId varchar(10) not null,
-    DownstreamCatalogId varchar(10) not null,
+    UpstreamCatalogId integer not null,
+    DownstreamCatalogId integer not null,
     CONSTRAINT pkCatalogDependencies PRIMARY KEY(UpstreamCatalogId, DownstreamCatalogId),
     CONSTRAINT fkUpstream FOREIGN KEY(UpstreamCatalogId) REFERENCES Catalog(CatalogID),
     CONSTRAINT fkDownstream FOREIGN KEY(DownstreamCatalogId) REFERENCES Catalog(CatalogID)
 );`
 
 
-const CreateCatalogCategoriesLookup=`
+ const CreateCatalogCategoriesLookup=`
 CREATE TABLE CatalogCategoriesLookup (
     Category varchar(20) not null primary key
 );`
 /**eg, for CCAR/SOX etc *
  *  Use that is no longer applicable 
  * has a new entry with Applicable=false*/
-const CreateCatalogCategories=`
+ const CreateCatalogCategories=`
 CREATE TABLE CatalogCategories (
-    CatalogId varchar(10) not null,
+    CatalogId integer not null,
     Category varchar(20) not null,
     Applicable boolean not null,
     DateModified datetime not null,
@@ -124,20 +119,20 @@ CREATE TABLE CatalogCategories (
     CONSTRAINT fkCatalogCategoriesLookup FOREIGN KEY(Category) REFERENCES CatalogCategoriesLookup(Category)
 );`
 
-const CreateCatalogName=`CREATE TABLE CatalogName (
-     CatalogID varchar(10) not null,
+ const CreateCatalogName=`CREATE TABLE CatalogName (
+     CatalogID integer not null,
      Name varchar(50) not null, 
      DateModified datetime not null, 
      Constraint pkCatalogName PRIMARY KEY(CatalogID, Name), 
      Constraint fkCatalogNameToCatalog FOREIGN KEY(CatalogID) REFERENCES Catalog(CatalogID)
 );`
 
-const CreateCatalogDeterminationLookup=`CREATE TABLE CatalogDeterminationLookup (
+ const CreateCatalogDeterminationLookup=`CREATE TABLE CatalogDeterminationLookup (
     DeterminationType varchar(30) not null primary key
 );`
-const CreateCatalogDetermination=`CREATE TABLE CatalogDetermination (
-    CatalogID varchar(10) not null,
-    DeterminationType varchar(10) not null,
+ const CreateCatalogDetermination=`CREATE TABLE CatalogDetermination (
+    CatalogID integer not null,
+    DeterminationType integer not null,
     DateModified datetime not null,
     CONSTRAINT pkCatalogDetermination PRIMARY KEY(CatalogID, DeterminationType, DateModified),
     CONSTRAINT fkCatalogDeterminationToCatalog FOREIGN KEY(CatalogID) REFERENCES Catalog(CatalogID),
@@ -145,12 +140,12 @@ const CreateCatalogDetermination=`CREATE TABLE CatalogDetermination (
 )
 `
 
-const CreateCatalogRatingLookup=`CREATE TABLE CatalogRatingLookup (
+ const CreateCatalogRatingLookup=`CREATE TABLE CatalogRatingLookup (
     Rating varchar(30) not null primary key
 );`
-const CreateCatalogRating=`CREATE TABLE CatalogRating (
-    CatalogID varchar(10) not null,
-    Rating varchar(10) not null,
+ const CreateCatalogRating=`CREATE TABLE CatalogRating (
+    CatalogID integer not null,
+    Rating integer not null,
     DateModified datetime not null,
     CONSTRAINT pkCatalogRating PRIMARY KEY(CatalogID, Rating, DateModified),
     CONSTRAINT fkCatalogRatingToCatalog FOREIGN KEY(CatalogID) REFERENCES Catalog(CatalogID),
@@ -160,10 +155,10 @@ const CreateCatalogRating=`CREATE TABLE CatalogRating (
 /**analyst and lead will be verified against AD.  
  * Lead can be automatically entered by using the 
  * id of the person submitting the form */
-const CreateCatalogMRMV=`CREATE TABLE CatalogAssignment (
-    CatalogID varchar(10) not null,
-    Analyst varchar(10) not null,
-    Lead varchar(10) not null,
+ const CreateCatalogMRMV=`CREATE TABLE CatalogAssignment (
+    CatalogID integer not null,
+    Analyst integer not null,
+    Lead integer not null,
     DateModified datetime not null,
     CONSTRAINT pkCatalogAssignment PRIMARY KEY(CatalogID, Analyst, Lead, DateModified),
     CONSTRAINT fkAssignmentToCatalog FOREIGN KEY(CatalogID) REFERENCES Catalog(CatalogID)
@@ -172,8 +167,8 @@ const CreateCatalogMRMV=`CREATE TABLE CatalogAssignment (
  * Use that is no longer applicable 
  * has a new entry with Applicable=false.
  */
-const CreateCatalogUses=`CREATE TABLE CatalogUses (
-    CatalogID varchar(10) not null,
+ const CreateCatalogUses=`CREATE TABLE CatalogUses (
+    CatalogID integer not null,
     Use varchar(50) not null,
     DateModified datetime not null,
     Applicable boolean not null,
@@ -183,34 +178,34 @@ const CreateCatalogUses=`CREATE TABLE CatalogUses (
 
 /**Annual review, validation, significant change, 
  * OGM, determinations */
-const CreateActivitiesLookup=`CREATE TABLE ActivityLookup(
+ const CreateActivitiesLookup=`CREATE TABLE ActivityLookup(
     ActivityType varchar(50) not null primary key
 );`;
 
-const CreateActivityID=`
+ const CreateActivityID=`
 CREATE TABLE Activity(
     ActivityID INTEGER PRIMARY KEY,
     ActivityType varchar(50) not null,
-    CatalogID varchar(10) not null,
+    CatalogID integer not null,
     CONSTRAINT fkActivityType FOREIGN KEY(ActivityType) REFERENCES ActivityLookup(ActivityType),
     CONSTRAINT fkActivityCatalog FOREIGN KEY(CatalogID) REFERENCES Catalog(CatalogID)
 );
 `
 
-const CreateActivityAnalysts=`
+ const CreateActivityAnalysts=`
 
     CREATE TABLE ActivityUsers(
         ActivityID INTEGER NOt null,
-        Analyst varchar(10),
+        Analyst integer,
         DateModified datetime not null, 
-        Applicable boolean not null,
+        Applicable BIT not null,
         CONSTRAINT pkActivityAnalysts PRIMARY KEY(ActivityID, Analyst, DateModified, Applicable),
         CONSTRAINT fkCatalogAnalystsToActivity FOREIGN KEY(ActivityID) REFERENCES Activity(ActivityID)
     )
 
 `
 
-const ActivityTypes=[
+ const ActivityTypes=[
     "Validation", 
     "AnnualReview",
     "Exam",
@@ -229,7 +224,7 @@ const ActivityTypes=[
 /**Each activity will have its own table (actions) so that 
  * each activity will have its own set of actions
  */
-const CreateActivityQueries=ActivityTypes.map((val)=>{
+ const CreateActivityQueries=ActivityTypes.map((val)=>{
     return {
         lookup:`
             CREATE TABLE ${val}ActionLookup(
@@ -253,13 +248,13 @@ const CreateActivityQueries=ActivityTypes.map((val)=>{
 
 
 /*Issues severity lookup*/
-const CreateIssueSeverityLookupTable=`
+ const CreateIssueSeverityLookupTable=`
 CREATE TABLE IssueSeverityLookup(
     IssueSeverity varchar(30) not null primary key
 );`
 
 /* Issues table*/
-const CreateIssuesTable=`
+ const CreateIssuesTable=`
 CREATE TABLE Issues(
     IssueID Integer not null primary key,
     ActivityID INTEGER not null,
@@ -267,24 +262,24 @@ CREATE TABLE Issues(
 );`
 
 /**issues severity table (for downgrades/upgrades) */
-const CreateIssueSeverity=`
+ const CreateIssueSeverity=`
 CREATE TABLE IssueSeverity(
     IssueID Integer not null,
     IssueSeverity varchar(30) not null,
     DateModified datetime not null,
     CONSTRAINT pkIssueSeverity PRIMARY KEY(IssueID, IssueSeverity, DateModified),
     CONSTRAINT fkIssueSeverityToIssueID FOREIGN KEY(IssueID) REFERENCES Issues(IssueID),
-    CONSTRAINT fkISsueSeverirtyToLookup FOREIGN KEY(IssueSeverity) REFERENCES IssueSeverityLookup(IssueSeverity)
+    CONSTRAINT fkIssueSeverityToLookup FOREIGN KEY(IssueSeverity) REFERENCES IssueSeverityLookup(IssueSeverity)
 );
 `
 
 /**Issue Events include "issue date", "remediation submitted", "closed date" */
-const CreateIssueEventsLookup=`
+ const CreateIssueEventsLookup=`
 CREATE TABLE IssueEventsLookup (
     Event varchar(20) not null primary key
 );`
 
-const CreateIssueEvents=`
+ const CreateIssueEvents=`
 CREATE TABLE IssueEvents(
     IssueID Integer not null,
     Event varchar(20) not null,
@@ -295,61 +290,48 @@ CREATE TABLE IssueEvents(
 );`
 
 /**When issues are due */
-const CreateIssueDueDates=`
+ const CreateIssueDueDates=`
 CREATE TABLE IssueDueDates (
     IssueID integer not null,
     DueDate date not null,
     DateModified datetime not null,
     CONSTRAINT pkIssueDueDate PRIMARY KEY(IssueID, DueDate, DateModified),
-    CONSTRAINT fkIssueDueToIssues FOREIGN KEY(IssueID) REFERENCES ISsues(IssueID)
+    CONSTRAINT fkIssueDueToIssues FOREIGN KEY(IssueID) REFERENCES Issues(IssueID)
 );`
 
 /**Issue mapping table (for recasts) */
-const CreateIssueMapping=`
+ const CreateIssueMapping=`
 CREATE TABLE IssueMapping(
     PriorIssueID Integer not null, 
-    RecastIssueID INteger not null,
+    RecastIssueID Integer not null,
     Constraint pkIssueMapping PRIMARY KEY(PriorIssueID, RecastIssueID),
-    Constraint fkPriorIssue FOREIGN KEY(PriorIssueID) REFERENCES Issues(ISsueID),
-    Constraint fkRecastIssue FOREIGN KEY(RecastIssueID) REFERENCES Issues(ISsueID)
+    Constraint fkPriorIssue FOREIGN KEY(PriorIssueID) REFERENCES Issues(IssueID),
+    Constraint fkRecastIssue FOREIGN KEY(RecastIssueID) REFERENCES Issues(IssueID)
 );
 `
 
-db.serialize(()=>{
-    db.exec(CreateCatalog)
-    db.exec(CreateCatalogName)
-    db.exec(CreateCatalogEventLookup)
-    db.exec(CreateCatalogEvent)
-    db.exec(CreateCatalogHiccupsLookup)
-    db.exec(CreateCatalogWaiver)
-    db.exec(CreateCatalogWaiverDueDates)
-    db.exec(CreateCatalogCategoriesLookup)
-    db.exec(CreateCatalogCategories)
-    db.exec(CreateCatalogPrecidence)
-    db.exec(CreateCatalogOwner)
-    db.exec(CreateCatalogUses)
-    db.exec(CreateCatalogMRMV)
-    db.exec(CreateCatalogDeterminationLookup)
-    db.exec(CreateCatalogDetermination)
-    db.exec(CreateCatalogRatingLookup)
-    db.exec(CreateCatalogRating)
-    db.exec(CreateActivitiesLookup)
-    db.exec(CreateActivityID)
-    db.exec(CreateIssueDueDates)
-    db.exec(CreateActivityAnalysts)
-    
-    CreateActivityQueries.map((val)=>{
-        db.exec(val.lookup)
-        db.exec(val.mainQuery)
-    })
-    
-    db.exec(CreateIssueSeverityLookupTable)
-    db.exec(CreateIssuesTable)
-    db.exec(CreateIssueSeverity)
-    db.exec(CreateIssueEventsLookup)
-    db.exec(CreateIssueEvents)
-    db.exec(CreateIssueMapping)
-});
-
-module.exports.db=db
-
+module.exports.CreateCatalog=CreateCatalog;
+module.exports.CreateCatalogEventLookup=CreateCatalogEventLookup;
+module.exports.CreateCatalogEvent=CreateCatalogEvent;
+module.exports.CreateCatalogHiccupsLookup=CreateCatalogHiccupsLookup;
+module.exports.CreateCatalogWaiver=CreateCatalogWaiver;
+module.exports.CreateCatalogWaiverDueDates=CreateCatalogWaiverDueDates;
+module.exports.CreateCatalogOngoingMonitoringResults=CreateCatalogOngoingMonitoringResults;
+module.exports.CreateCatalogOngoingMonitoringProgram=CreateCatalogOngoingMonitoringProgram;
+module.exports.CreateCatalogPrecedence=CreateCatalogPrecedence;
+module.exports.CreateCatalogCategoriesLookup=CreateCatalogCategoriesLookup;
+module.exports.CreateCatalogDetermination=CreateCatalogDetermination;
+module.exports.CreateCatalogRatingLookup=CreateCatalogRatingLookup;
+module.exports.CreateCatalogRating=CreateCatalogRating;
+module.exports.CreateActivitiesLookup=CreateActivitiesLookup;
+module.exports.CreateActivityID=CreateActivityID;
+module.exports.CreateCatalogMRMV=CreateCatalogMRMV;
+module.exports.CreateActivityAnalysts=CreateActivityAnalysts;
+module.exports.CreateActivityQueries=CreateActivityQueries;
+module.exports.CreateIssueSeverityLookupTable=CreateIssueSeverityLookupTable;
+module.exports.CreateIssuesTable=CreateIssuesTable;
+module.exports.CreateIssueSeverity=CreateIssueSeverity;
+module.exports.CreateIssueEventsLookup=CreateIssueEventsLookup;
+module.exports.CreateIssueEvents=CreateIssueEvents;
+module.exports.CreateIssueDueDates=CreateIssueDueDates;
+module.exports.CreateIssueMapping=CreateIssueMapping;

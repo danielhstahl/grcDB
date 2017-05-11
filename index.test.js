@@ -108,7 +108,6 @@ it("Fails insert because of CreateCatalogEventLookup->CatalogEvents FK", (done)=
         throw new Error("Should have errored")
         done()
     })      
-    
 })
 it("inserts records into CatalogEvents", (done)=>{
     db.exec(`INSERT INTO CatalogEvents (CatalogID, CatalogEvent, DateOfEvent, DateModified) 
