@@ -135,7 +135,7 @@ const insertRecords=()=>{
   })
   .then(()=>{//issue events dates
   
-    return wrapExecute("INSERT INTO IssueEvents(IssueID, Event, DateModified) SELECT ID, 'Closed', [Verification/Closed Date] FROM [SP_>Issue Tracker] t1 INNER JOIN Issues t2 ON t1.ID=t2.IssueID; WHERE [Verification/Closed Date] IS NOT NULL;", connectionSource)
+    return wrapExecute("INSERT INTO IssueEvents(IssueID, Event, DateModified) SELECT ID, 'Closed', [Verification/Closed Date] FROM [SP_>Issue Tracker] t1 INNER JOIN Issues t2 ON t1.ID=t2.IssueID WHERE [Verification/Closed Date] IS NOT NULL;", connectionSource)
 
   })
   .then(()=>{//issue events dates
