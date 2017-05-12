@@ -141,7 +141,7 @@ const insertRecords=()=>{
   .then(()=>{//issue events dates
   
     /**note that closed issues with no closed date are treated as if they have been closed today!!  we don't have this visibility */
-    return wrapExecute("INSERT INTO IssueEvents(IssueID, Event, DateModified) SELECT ID, 'Closed', TODAY() FROM [SP_>Issue Tracker] t1 INNER JOIN Issues t2 ON t1.ID=t2.IssueID WHERE [Verification/Closed Date] IS NULL AND instr(Status, 'Closed')>0;", connectionSource)
+    return wrapExecute("INSERT INTO IssueEvents(IssueID, Event, DateModified) SELECT ID, 'Closed', NOW() FROM [SP_>Issue Tracker] t1 INNER JOIN Issues t2 ON t1.ID=t2.IssueID WHERE [Verification/Closed Date] IS NULL AND instr(Status, 'Closed')>0;", connectionSource)
 
   })
   .then(()=>{//issue events dates
